@@ -90,10 +90,5 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
 | `/prices`      | Live MSP + AgriCredit conversions        |
 | `/about`       | Full AgriCredit system documentation     |
 
-## 🚀 Deploy to Vercel
-
-```bash
-vercel --prod
-```
 
 Set environment variables in Vercel dashboard matching `.env.local`.
