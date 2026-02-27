@@ -215,11 +215,6 @@ Microservice-ready backend for horizontal scaling.
 Built under the theme:  
 **Smart Agricultural Barter System – Trust-Enabled Rural Exchange Framework**
 
----
-
-## ⭐ Contributing
-
-Contributions, ideas, and feedback are welcome!
 
 ---
 
