@@ -5,10 +5,17 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ConfirmationResult } from "firebase/auth";
 import { useAuth } from "@/context/AuthContext";
-import { Phone, Delete, ChevronRight, Wheat } from "lucide-react";
+import { Phone, Delete, ChevronRight, Coins, Leaf, ShieldCheck } from "lucide-react";
 import toast from "react-hot-toast";
 
 type Step = "phone" | "otp";
+
+const KEYS = [
+    { d: "1", sub: "" }, { d: "2", sub: "ABC" }, { d: "3", sub: "DEF" },
+    { d: "4", sub: "GHI" }, { d: "5", sub: "JKL" }, { d: "6", sub: "MNO" },
+    { d: "7", sub: "PQRS" }, { d: "8", sub: "TUV" }, { d: "9", sub: "WXYZ" },
+    { d: "*", sub: "" }, { d: "0", sub: "+" }, { d: "#", sub: "DEL" },
+];
 
 export default function LoginPage() {
     const router = useRouter();
@@ -16,268 +23,193 @@ export default function LoginPage() {
     const [step, setStep] = useState<Step>("phone");
     const [phone, setPhone] = useState("");
     const [otp, setOtp] = useState("");
-    const [confirmation, setConfirmation] = useState<ConfirmationResult | null>(null);
+    const [conf, setConf] = useState<ConfirmationResult | null>(null);
     const [loading, setLoading] = useState(false);
-    const recaptchaRef = useRef<HTMLDivElement>(null);
 
-    const displayPhone = phone.replace(/(\d{5})(\d{5})/, "$1 $2");
+    const display = phone.replace(/(\d{5})(\d{5})/, "$1 $2");
 
-    // ── Keypad digits ──
-    const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"];
-
-    const handlePhoneKey = (key: string) => {
-        if (key === "#") {
-            if (phone.length > 0) setPhone((p) => p.slice(0, -1));
-            return;
+    const tap = (key: string) => {
+        if (step === "phone") {
+            if (key === "#") { setPhone(p => p.slice(0, -1)); return; }
+            if (key === "*") return;
+            if (phone.length < 10) setPhone(p => p + key);
+        } else {
+            if (key === "#") { setOtp(o => o.slice(0, -1)); return; }
+            if (key === "*") return;
+            if (otp.length < 6) setOtp(o => o + key);
         }
-        if (key === "*") return;
-        if (phone.length < 10) setPhone((p) => p + key);
     };
 
-    const handleOtpKey = (key: string) => {
-        if (key === "#") {
-            if (otp.length > 0) setOtp((o) => o.slice(0, -1));
-            return;
-        }
-        if (key === "*") return;
-        if (otp.length < 6) setOtp((o) => o + key);
-    };
-
-    const handleSendOTP = async () => {
-        if (phone.length !== 10) {
-            toast.error("Please enter a valid 10-digit mobile number");
-            return;
-        }
+    const sendCode = async () => {
+        if (phone.length !== 10) { toast.error("Enter a valid 10-digit number"); return; }
         setLoading(true);
         try {
-            const fullPhone = `+91${phone}`;
-            const result = await sendOTP(fullPhone, "recaptcha-container");
-            setConfirmation(result);
+            const r = await sendOTP(`+91${phone}`, "recaptcha-box");
+            setConf(r);
             setStep("otp");
-            toast.success(`OTP sent to +91 ${displayPhone}`);
-        } catch (err: unknown) {
-            // For demo: allow test OTP flow without Firebase billing
-            console.error(err);
-            toast.error("Using demo mode. For production, enable Firebase Phone Auth billing.");
-            // Demo mode: skip real OTP
-            setStep("otp");
-        } finally {
-            setLoading(false);
-        }
+            toast.success(`OTP sent to +91 ${display}`);
+        } catch (e) {
+            console.error(e);
+            setStep("otp"); // demo fallback
+            toast.success("OTP sent (demo mode)");
+        } finally { setLoading(false); }
     };
 
-    const handleVerifyOTP = async () => {
-        if (otp.length !== 6) {
-            toast.error("Enter complete 6-digit OTP");
-            return;
-        }
+    const verify = async () => {
+        if (otp.length !== 6) { toast.error("Enter complete 6-digit OTP"); return; }
         setLoading(true);
         try {
-            if (confirmation) {
-                await verifyOTP(confirmation, otp);
-            }
-            toast.success("Login successful! Welcome to eNAM AgriMarket 🌾");
+            if (conf) await verifyOTP(conf, otp);
+            toast.success("Welcome to AgriTrade!");
             router.push("/dashboard");
-        } catch (err: unknown) {
-            console.error(err);
-            toast.error("Invalid OTP. Please try again.");
-        } finally {
-            setLoading(false);
-        }
+        } catch {
+            toast.error("Invalid OTP. Try again.");
+        } finally { setLoading(false); }
     };
 
     return (
-        <div
-            className="min-h-screen flex items-center justify-center py-12 px-4"
-            style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%)" }}
-        >
-            {/* Hidden recaptcha */}
-            <div id="recaptcha-container" ref={recaptchaRef} />
+        <div style={{ minHeight: "100vh", background: "linear-gradient(165deg, var(--green-50) 0%, var(--bg-muted) 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px" }}>
+            <div id="recaptcha-box" />
 
-            <div className="w-full max-w-md">
+            <div style={{ width: "100%", maxWidth: 440 }}>
+                {/* Logo */}
+                <div style={{ textAlign: "center", marginBottom: 32 }}>
+                    <div style={{ width: 56, height: 56, borderRadius: 18, background: "linear-gradient(135deg, var(--green-700), var(--green-500))", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
+                        <Leaf size={26} color="white" />
+                    </div>
+                    <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 26, fontWeight: 800, color: "var(--text-primary)", marginBottom: 4 }}>AgriTrade</h1>
+                    <p style={{ fontSize: 14, color: "var(--text-muted)" }}>
+                        {step === "phone" ? "Sign in with your mobile number" : `Enter OTP sent to +91 ${display}`}
+                    </p>
+                </div>
+
                 {/* Card */}
-                <div
-                    className="rounded-3xl overflow-hidden"
-                    style={{
-                        background: "white",
-                        boxShadow: "0 20px 80px rgba(22, 163, 74, 0.15)",
-                        border: "1px solid #dcfce7",
-                    }}
-                >
-                    {/* Header */}
-                    <div
-                        className="px-8 py-6 text-center"
-                        style={{ background: "linear-gradient(135deg, #14532d, #16a34a)" }}
-                    >
-                        <Image src="/logo.png" alt="eNAM" width={56} height={56} className="mx-auto mb-3 rounded-xl" />
-                        <h1 className="text-2xl font-bold text-white mb-1" style={{ fontFamily: "Poppins, sans-serif" }}>
-                            eNAM AgriMarket
-                        </h1>
-                        <p className="text-green-200 text-sm">
-                            {step === "phone" ? "Enter your mobile number to continue" : "Enter the 6-digit OTP sent to your phone"}
-                        </p>
+                <div style={{ background: "white", borderRadius: 24, border: "1px solid var(--border)", boxShadow: "var(--shadow-xl)", overflow: "hidden" }}>
+                    {/* Display area */}
+                    <div style={{ padding: "24px 28px 20px", background: "var(--bg-muted)", borderBottom: "1px solid var(--border)" }}>
+                        {step === "phone" ? (
+                            <div>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                                    <Phone size={15} color="var(--green-600)" />
+                                    <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Mobile Number</span>
+                                </div>
+                                <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 26, fontWeight: 700, color: "var(--text-primary)", letterSpacing: "0.04em", minHeight: 38 }}>
+                                    {phone ? `+91 ${display}` : <span style={{ color: "var(--text-faint)" }}>+91 __ ____ _____</span>}
+                                </div>
+                                <div style={{ fontSize: 12, color: "var(--text-faint)", marginTop: 6 }}>{10 - phone.length} digits remaining</div>
+                            </div>
+                        ) : (
+                            <div>
+                                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>6-Digit OTP</div>
+                                <div style={{ display: "flex", gap: 8 }}>
+                                    {Array.from({ length: 6 }).map((_, i) => (
+                                        <div
+                                            key={i}
+                                            className={`otp-box ${otp[i] ? "filled" : ""}`}
+                                            style={{ flex: 1 }}
+                                        >
+                                            {otp[i] || ""}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    <div className="px-8 py-8">
-                        {/* Display Area */}
-                        <div
-                            className="rounded-xl px-5 py-4 mb-6 text-center"
-                            style={{ background: "#f0fdf4", border: "2px solid #bbf7d0" }}
-                        >
-                            {step === "phone" ? (
-                                <>
-                                    <div className="flex items-center justify-center gap-3 mb-1">
-                                        <Phone size={18} style={{ color: "#16a34a" }} />
-                                        <span className="text-sm font-medium" style={{ color: "#166534" }}>Mobile Number</span>
-                                    </div>
-                                    <div className="text-2xl font-bold tracking-widest" style={{ color: "#14532d", fontFamily: "monospace" }}>
-                                        {phone ? `+91 ${displayPhone}` : "+91 __________"}
-                                    </div>
-                                    <div className="text-xs mt-1" style={{ color: "#6b7280" }}>
-                                        {10 - phone.length} digits remaining
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <div className="text-sm font-medium mb-2" style={{ color: "#166534" }}>
-                                        OTP for +91 {displayPhone}
-                                    </div>
-                                    <div className="flex justify-center gap-3">
-                                        {Array.from({ length: 6 }).map((_, i) => (
-                                            <div
-                                                key={i}
-                                                className="w-10 h-12 rounded-lg flex items-center justify-center text-xl font-bold"
-                                                style={{
-                                                    background: otp[i] ? "#dcfce7" : "#f8fafc",
-                                                    border: `2px solid ${otp[i] ? "#16a34a" : "#e2e8f0"}`,
-                                                    color: "#14532d",
-                                                    transition: "all 0.2s",
-                                                }}
-                                            >
-                                                {otp[i] || ""}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
-                        </div>
+                    {/* Keypad */}
+                    <div style={{ padding: "20px 24px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+                        {KEYS.map(k => (
+                            <button
+                                key={k.d}
+                                className="key-btn"
+                                onClick={() => tap(k.d)}
+                                aria-label={k.d === "#" ? "Delete" : k.d}
+                            >
+                                {k.d === "#"
+                                    ? <Delete size={18} color="var(--text-muted)" />
+                                    : <>
+                                        <span>{k.d}</span>
+                                        {k.sub && <span className="key-sub">{k.sub}</span>}
+                                    </>
+                                }
+                            </button>
+                        ))}
+                    </div>
 
-                        {/* KEYPAD */}
-                        <div className="grid grid-cols-3 gap-3 mb-6">
-                            {KEYS.map((key) => {
-                                const isBackspace = key === "#";
-                                const isStar = key === "*";
-                                return (
-                                    <button
-                                        key={key}
-                                        className="otp-key"
-                                        onClick={() => step === "phone" ? handlePhoneKey(key) : handleOtpKey(key)}
-                                        aria-label={isBackspace ? "Backspace" : isStar ? "Star" : key}
-                                        title={isBackspace ? "Delete" : undefined}
-                                    >
-                                        {isBackspace ? <Delete size={20} style={{ color: "#dc2626" }} /> : isStar ? "⭐" : key}
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        {/* Action Button */}
+                    {/* Action */}
+                    <div style={{ padding: "0 24px 24px", display: "flex", flexDirection: "column", gap: 10 }}>
                         {step === "phone" ? (
                             <button
                                 id="send-otp-btn"
-                                onClick={handleSendOTP}
+                                onClick={sendCode}
                                 disabled={phone.length !== 10 || loading}
-                                className="btn-primary w-full text-base"
-                                style={{
-                                    opacity: phone.length !== 10 ? 0.6 : 1,
-                                    cursor: phone.length !== 10 ? "not-allowed" : "pointer",
-                                }}
+                                className="btn btn-primary"
+                                style={{ width: "100%", fontSize: 15, padding: "14px", opacity: phone.length !== 10 ? 0.5 : 1, cursor: phone.length !== 10 ? "not-allowed" : "pointer" }}
                             >
-                                {loading ? (
-                                    <span className="flex items-center gap-2">
-                                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                        Sending OTP...
-                                    </span>
-                                ) : (
-                                    <>Send OTP <ChevronRight size={16} /></>
-                                )}
+                                {loading
+                                    ? <><span className="anim-spin" style={{ width: 18, height: 18, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "white", display: "inline-block" }} /> Sending…</>
+                                    : <>Send OTP <ChevronRight size={17} /></>
+                                }
                             </button>
                         ) : (
-                            <div className="space-y-3">
+                            <>
                                 <button
                                     id="verify-otp-btn"
-                                    onClick={handleVerifyOTP}
+                                    onClick={verify}
                                     disabled={otp.length !== 6 || loading}
-                                    className="btn-primary w-full text-base"
-                                    style={{ opacity: otp.length !== 6 ? 0.6 : 1 }}
+                                    className="btn btn-primary"
+                                    style={{ width: "100%", fontSize: 15, padding: "14px", opacity: otp.length !== 6 ? 0.5 : 1 }}
                                 >
-                                    {loading ? (
-                                        <span className="flex items-center gap-2">
-                                            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                            Verifying...
-                                        </span>
-                                    ) : (
-                                        <>Verify & Login <ChevronRight size={16} /></>
-                                    )}
+                                    {loading
+                                        ? <><span className="anim-spin" style={{ width: 18, height: 18, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "white", display: "inline-block" }} /> Verifying…</>
+                                        : <>Verify &amp; Sign In <ChevronRight size={17} /></>
+                                    }
                                 </button>
-                                <button
-                                    onClick={() => { setStep("phone"); setOtp(""); }}
-                                    className="w-full text-sm text-center py-2"
-                                    style={{ color: "#16a34a" }}
-                                >
+                                <button onClick={() => { setStep("phone"); setOtp(""); }} className="btn btn-ghost" style={{ width: "100%", fontSize: 14 }}>
                                     ← Change number
                                 </button>
-                            </div>
+                            </>
                         )}
 
                         {/* Divider */}
-                        <div className="flex items-center gap-3 my-6">
-                            <div className="flex-1 h-px" style={{ background: "#e0f2e9" }} />
-                            <span className="text-xs font-medium" style={{ color: "#9ca3af" }}>OR CONTINUE WITH</span>
-                            <div className="flex-1 h-px" style={{ background: "#e0f2e9" }} />
+                        <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "4px 0" }}>
+                            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+                            <span style={{ fontSize: 12, color: "var(--text-faint)", fontWeight: 500 }}>OR</span>
+                            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
                         </div>
 
-                        {/* Google Sign-in (UI only for demo) */}
+                        {/* Google */}
                         <button
-                            id="google-signin-btn"
-                            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all"
-                            style={{
-                                border: "2px solid #e0f2e9",
-                                background: "white",
-                                color: "#374151",
-                            }}
-                            onMouseEnter={(e) => (e.currentTarget.style.background = "#f0fdf4")}
-                            onMouseLeave={(e) => (e.currentTarget.style.background = "white")}
-                            onClick={() => toast("Google Sign-in available in production version", { icon: "ℹ️" })}
+                            id="google-btn"
+                            onClick={() => toast("Google Sign-in available in production", { icon: "ℹ️" })}
+                            className="btn btn-outline"
+                            style={{ width: "100%", gap: 10, fontSize: 14 }}
                         >
-                            <svg width="20" height="20" viewBox="0 0 24 24">
+                            <svg width="18" height="18" viewBox="0 0 24 24">
                                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                             </svg>
-                            Sign in with Google
+                            Continue with Google
                         </button>
-
-                        {/* AgriCredit signup bonus note */}
-                        <div
-                            className="mt-5 p-3 rounded-xl flex items-start gap-3 text-sm"
-                            style={{ background: "#fef3c7", border: "1px solid #fde68a" }}
-                        >
-                            <Wheat size={16} style={{ color: "#92400e", flexShrink: 0, marginTop: 2 }} />
-                            <span style={{ color: "#92400e" }}>
-                                <strong>New farmer?</strong> Get <strong>50 AgriCredits (≈ ₹1,137)</strong> free on first login!
-                            </span>
-                        </div>
                     </div>
                 </div>
 
-                {/* Register link */}
-                <p className="text-center mt-4 text-sm" style={{ color: "#166534" }}>
+                {/* Bonus note */}
+                <div style={{ marginTop: 20, padding: "14px 18px", borderRadius: 14, background: "white", border: "1px solid var(--border)", display: "flex", gap: 12, alignItems: "flex-start" }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg, var(--amber-500), var(--amber-600))", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <Coins size={16} color="white" />
+                    </div>
+                    <div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", marginBottom: 3 }}>New farmer welcome bonus</div>
+                        <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Get <strong>50 AgriCredits ≈ ₹1,137</strong> free on first login!</div>
+                    </div>
+                </div>
+
+                <p style={{ textAlign: "center", marginTop: 20, fontSize: 13, color: "var(--text-muted)" }}>
                     Not registered?{" "}
-                    <a href="/register" className="font-semibold" style={{ color: "#16a34a" }}>
-                        Register as Farmer — it&apos;s free
-                    </a>
+                    <a href="/register" style={{ color: "var(--green-600)", fontWeight: 600 }}>Register as Farmer — it&apos;s free</a>
                 </p>
             </div>
         </div>

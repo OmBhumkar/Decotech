@@ -1,11 +1,11 @@
-# eNAM AgriMarket — Next.js 15 + Firebase + TailwindCSS
+# AgriTrade — Next.js 15 + Firebase + TailwindCSS
 
-A production-ready digital agricultural marketplace inspired by the Government of India's eNAM portal.
+A production-ready digital agricultural marketplace inspired by the Government of India's eNAM portal (rebranded as **AgriTrade**).
 
 ## 🚀 Quick Start
 
 ```bash
-cd enam-app
+cd agritrade-app
 npm install
 npm run dev        # Development server at localhost:3000
 npm run build      # Production build

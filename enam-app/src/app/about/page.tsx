@@ -11,9 +11,9 @@ export default function AboutPage() {
             {/* Hero */}
             <div style={{ background: "linear-gradient(135deg, #14532d, #059669)" }} className="py-20 px-4">
                 <div className="max-w-4xl mx-auto text-center">
-                    <Image src="/logo.png" alt="eNAM" width={80} height={80} className="mx-auto mb-6 rounded-2xl" />
+                    <Image src="/logo.png" alt="AgriTrade" width={80} height={80} className="mx-auto mb-6 rounded-2xl" />
                     <h1 className="text-4xl md:text-5xl font-bold text-white mb-4" style={{ fontFamily: "Poppins, sans-serif" }}>
-                        About eNAM AgriMarket
+                        About AgriTrade
                     </h1>
                     <p className="text-green-200 text-xl max-w-2xl mx-auto">
                         A Government of India initiative transforming agricultural trade through digital innovation, MSP transparency, and farmer empowerment.
@@ -221,7 +221,7 @@ export default function AboutPage() {
                         Government of India Initiative
                     </h2>
                     <p className="text-lg mb-6 max-w-2xl mx-auto" style={{ color: "#4b7c5c" }}>
-                        eNAM is implemented by the <strong>Small Farmers Agribusiness Consortium (SFAC)</strong> under the aegis of the <strong>Ministry of Agriculture and Farmers&apos; Welfare</strong>, Government of India.
+                        AgriTrade is implemented by the <strong>Small Farmers Agribusiness Consortium (SFAC)</strong> under the aegis of the <strong>Ministry of Agriculture and Farmers&apos; Welfare</strong>, Government of India.
                     </p>
                     <div className="flex flex-wrap justify-center gap-4 text-sm">
                         {["1522 Mandis", "23 States & UTs", "190+ Commodities", "₹2.4L Cr+ Trade"].map((stat) => (
@@ -236,7 +236,7 @@ export default function AboutPage() {
                     </div>
                     <div className="mt-8">
                         <Link href="/register" className="btn-primary text-lg px-8 py-4 mr-4">
-                            Join eNAM — It&apos;s Free
+                            Join AgriTrade — It&apos;s Free
                         </Link>
                         <Link href="/marketplace" className="btn-secondary text-lg px-8 py-4">
                             Browse Marketplace
