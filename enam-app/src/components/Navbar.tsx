@@ -4,7 +4,25 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Menu, X, Wheat, ChevronDown, LogOut, User, Wallet, BarChart3, ShoppingBag } from "lucide-react";
+import {
+    Menu, X, Leaf, ChevronDown, LogOut, User,
+    Wallet, BarChart2, ShoppingBag, TrendingUp, Info,
+    Coins
+} from "lucide-react";
+
+const NAV_LINKS = [
+    { href: "/marketplace", label: "Marketplace" },
+    { href: "/prices", label: "Prices" },
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/about", label: "About" },
+];
+
+const DROP_LINKS = [
+    { href: "/dashboard", icon: BarChart2, label: "Dashboard" },
+    { href: "/wallet", icon: Wallet, label: "Wallet" },
+    { href: "/my-listings", icon: ShoppingBag, label: "My Listings" },
+    { href: "/profile", icon: User, label: "Profile" },
+];
 
 export default function Navbar() {
     const { user, profile, logout } = useAuth();
@@ -12,177 +30,239 @@ export default function Navbar() {
     const [dropOpen, setDropOpen] = useState(false);
 
     return (
-        <nav
-            className="sticky top-0 z-50 w-full"
+        <header
             style={{
-                background: "rgba(240, 253, 244, 0.95)",
-                backdropFilter: "blur(12px)",
-                borderBottom: "1px solid #dcfce7",
-                boxShadow: "0 2px 16px rgba(22, 163, 74, 0.08)",
+                position: "sticky",
+                top: 0,
+                zIndex: 100,
+                background: "rgba(255,255,255,0.92)",
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                borderBottom: "1px solid var(--border)",
+                height: "64px",
             }}
         >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
-                {/* Logo */}
-                <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
-                    <Image src="/logo.png" alt="eNAM Logo" width={40} height={40} className="rounded-lg" />
+            <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: "64px" }}>
+
+                {/* ── Logo ── */}
+                <Link href="/" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
+                    <div style={{
+                        width: 36, height: 36,
+                        borderRadius: 10,
+                        background: "linear-gradient(135deg, var(--green-700), var(--green-500))",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        flexShrink: 0,
+                    }}>
+                        <Leaf size={18} color="white" strokeWidth={2.5} />
+                    </div>
                     <div>
-                        <div className="font-bold text-lg leading-tight" style={{ color: "#14532d" }}>
-                            eNAM
-                            <span className="text-green-600 ml-1">AgriMarket</span>
+                        <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 17, color: "var(--text-primary)", lineHeight: 1.1 }}>
+                            AgriTrade <span style={{ color: "var(--green-600)" }}>Platform</span>
                         </div>
-                        <div className="text-xs text-green-600 leading-none">National Agriculture Market</div>
+                        <div style={{ fontSize: 10, color: "var(--text-muted)", fontWeight: 500 }}>National Agriculture Market</div>
                     </div>
                 </Link>
 
-                {/* Desktop Nav */}
-                <div className="hidden md:flex items-center gap-1">
-                    {[
-                        { href: "/marketplace", label: "Marketplace" },
-                        { href: "/prices", label: "Prices" },
-                        { href: "/dashboard", label: "Dashboard" },
-                        { href: "/about", label: "About eNAM" },
-                    ].map((item) => (
+                {/* ── Desktop Nav ── */}
+                <nav className="hide-mobile" style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                    {NAV_LINKS.map((l) => (
                         <Link
-                            key={item.href}
-                            href={item.href}
-                            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                            style={{ color: "#166534" }}
+                            key={l.href}
+                            href={l.href}
+                            style={{
+                                padding: "8px 14px",
+                                borderRadius: 8,
+                                fontSize: 14,
+                                fontWeight: 500,
+                                color: "var(--text-secondary)",
+                                transition: "background 0.15s ease, color 0.15s ease",
+                            }}
                             onMouseEnter={(e) => {
-                                (e.target as HTMLElement).style.background = "#dcfce7";
+                                (e.currentTarget as HTMLElement).style.background = "var(--bg-muted)";
+                                (e.currentTarget as HTMLElement).style.color = "var(--green-700)";
                             }}
                             onMouseLeave={(e) => {
-                                (e.target as HTMLElement).style.background = "transparent";
+                                (e.currentTarget as HTMLElement).style.background = "transparent";
+                                (e.currentTarget as HTMLElement).style.color = "var(--text-secondary)";
                             }}
                         >
-                            {item.label}
+                            {l.label}
                         </Link>
                     ))}
-                </div>
+                </nav>
 
-                {/* Right Side */}
-                <div className="hidden md:flex items-center gap-3">
+                {/* ── Right Side ── */}
+                <div className="hide-mobile" style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     {user && profile ? (
-                        <div className="relative flex items-center gap-3">
-                            {/* AgriCredit Balance */}
-                            <div className="ac-badge">
-                                <Wheat size={14} />
+                        <>
+                            {/* AC Balance */}
+                            <div className="ac-pill" style={{ fontSize: 12 }}>
+                                <Coins size={13} />
                                 {profile.agriCredits.toLocaleString()} AC
                             </div>
 
-                            {/* User Menu */}
-                            <button
-                                id="user-menu-btn"
-                                onClick={() => setDropOpen(!dropOpen)}
-                                className="flex items-center gap-2 px-3 py-2 rounded-lg"
-                                style={{ background: "#dcfce7", color: "#14532d" }}
-                            >
-                                <User size={16} />
-                                <span className="text-sm font-medium">
-                                    {profile.name || profile.phone?.slice(-4).padStart(8, "•")}
-                                </span>
-                                <ChevronDown size={14} />
-                            </button>
-
-                            {dropOpen && (
-                                <div
-                                    className="absolute right-0 top-12 w-52 rounded-xl py-2 z-50"
+                            {/* Avatar + Dropdown */}
+                            <div style={{ position: "relative" }}>
+                                <button
+                                    id="user-avatar-btn"
+                                    onClick={() => setDropOpen(!dropOpen)}
                                     style={{
-                                        background: "white",
-                                        border: "1px solid #dcfce7",
-                                        boxShadow: "0 10px 32px rgba(22, 163, 74, 0.15)",
+                                        display: "flex", alignItems: "center", gap: 8,
+                                        padding: "6px 12px", borderRadius: 10,
+                                        background: dropOpen ? "var(--bg-muted)" : "transparent",
+                                        border: "1.5px solid var(--border)",
+                                        cursor: "pointer",
+                                        transition: "all 0.15s ease",
+                                    }}
+                                    onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-muted)")}
+                                    onMouseLeave={(e) => {
+                                        if (!dropOpen) e.currentTarget.style.background = "transparent";
                                     }}
                                 >
-                                    {[
-                                        { href: "/dashboard", icon: <BarChart3 size={15} />, label: "Dashboard" },
-                                        { href: "/wallet", icon: <Wallet size={15} />, label: "My Wallet" },
-                                        { href: "/my-listings", icon: <ShoppingBag size={15} />, label: "My Listings" },
-                                        { href: "/profile", icon: <User size={15} />, label: "Profile" },
-                                    ].map((item) => (
-                                        <Link
-                                            key={item.href}
-                                            href={item.href}
-                                            className="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors"
-                                            style={{ color: "#166534" }}
-                                            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#f0fdf4")}
-                                            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}
-                                            onClick={() => setDropOpen(false)}
-                                        >
-                                            {item.icon}
-                                            {item.label}
-                                        </Link>
-                                    ))}
-                                    <hr style={{ borderColor: "#dcfce7", margin: "0.5rem 0" }} />
-                                    <button
-                                        onClick={() => { logout(); setDropOpen(false); }}
-                                        className="flex items-center gap-3 px-4 py-2.5 text-sm w-full text-left transition-colors"
-                                        style={{ color: "#dc2626" }}
-                                        onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#fef2f2")}
-                                        onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}
+                                    <div style={{
+                                        width: 28, height: 28, borderRadius: "50%",
+                                        background: "linear-gradient(135deg, var(--green-600), var(--green-400))",
+                                        display: "flex", alignItems: "center", justifyContent: "center",
+                                    }}>
+                                        <User size={14} color="white" />
+                                    </div>
+                                    <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
+                                        {profile.name?.split(" ")[0] || profile.phone?.slice(-4).padStart(6, "•")}
+                                    </span>
+                                    <ChevronDown size={14} color="var(--text-muted)" style={{ transform: dropOpen ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s" }} />
+                                </button>
+
+                                {dropOpen && (
+                                    <div
+                                        className="anim-scaleIn"
+                                        style={{
+                                            position: "absolute", top: "calc(100% + 8px)", right: 0,
+                                            width: 210, background: "white",
+                                            border: "1px solid var(--border)", borderRadius: 14,
+                                            boxShadow: "var(--shadow-xl)", padding: "6px",
+                                            zIndex: 200,
+                                        }}
                                     >
-                                        <LogOut size={15} />
-                                        Logout
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+                                        {DROP_LINKS.map((item) => (
+                                            <Link
+                                                key={item.href}
+                                                href={item.href}
+                                                onClick={() => setDropOpen(false)}
+                                                style={{
+                                                    display: "flex", alignItems: "center", gap: 10,
+                                                    padding: "9px 12px", borderRadius: 10,
+                                                    fontSize: 13, fontWeight: 500,
+                                                    color: "var(--text-secondary)", transition: "background 0.12s",
+                                                }}
+                                                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-muted)")}
+                                                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                                            >
+                                                <item.icon size={15} />
+                                                {item.label}
+                                            </Link>
+                                        ))}
+                                        <div style={{ height: 1, background: "var(--border)", margin: "4px 8px" }} />
+                                        <button
+                                            onClick={() => { logout(); setDropOpen(false); }}
+                                            style={{
+                                                display: "flex", alignItems: "center", gap: 10,
+                                                padding: "9px 12px", borderRadius: 10, width: "100%",
+                                                fontSize: 13, fontWeight: 500, color: "#ef4444",
+                                                background: "transparent", border: "none", cursor: "pointer",
+                                                transition: "background 0.12s",
+                                            }}
+                                            onMouseEnter={(e) => (e.currentTarget.style.background = "#fff1f1")}
+                                            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                                        >
+                                            <LogOut size={15} />
+                                            Sign out
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </>
                     ) : (
-                        <div className="flex items-center gap-2">
-                            <Link href="/login" className="btn-secondary text-sm py-2 px-4">Login</Link>
-                            <Link href="/register" className="btn-primary text-sm py-2 px-4">Register Free</Link>
-                        </div>
+                        <>
+                            <Link href="/login" className="btn btn-ghost btn-sm">Sign in</Link>
+                            <Link href="/register" className="btn btn-primary btn-sm">Get Started</Link>
+                        </>
                     )}
                 </div>
 
-                {/* Mobile Hamburger */}
+                {/* ── Mobile Hamburger ── */}
                 <button
-                    className="md:hidden p-2 rounded-lg"
-                    style={{ color: "#16a34a" }}
+                    className="hide-desktop"
                     onClick={() => setMenuOpen(!menuOpen)}
-                    aria-label="Toggle menu"
+                    style={{
+                        padding: 8, borderRadius: 8, background: "transparent",
+                        border: "1.5px solid var(--border)", color: "var(--text-secondary)",
+                        display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+                    }}
+                    aria-label="Toggle navigation"
                 >
-                    {menuOpen ? <X size={24} /> : <Menu size={24} />}
+                    {menuOpen ? <X size={20} /> : <Menu size={20} />}
                 </button>
             </div>
 
-            {/* Mobile Menu */}
+            {/* ── Mobile Menu ── */}
             {menuOpen && (
                 <div
-                    className="md:hidden px-4 py-4 space-y-2"
-                    style={{ borderTop: "1px solid #dcfce7", background: "rgba(240, 253, 244, 0.98)" }}
+                    className="anim-fadeIn hide-desktop"
+                    style={{
+                        position: "absolute", top: 64, left: 0, right: 0,
+                        background: "white", borderBottom: "1px solid var(--border)",
+                        padding: "16px",
+                        boxShadow: "var(--shadow-lg)",
+                    }}
                 >
-                    {[
-                        { href: "/marketplace", label: "🛒 Marketplace" },
-                        { href: "/prices", label: "📊 Live Prices" },
-                        { href: "/dashboard", label: "📈 Dashboard" },
-                        { href: "/about", label: "ℹ️ About eNAM" },
-                    ].map((item) => (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className="block px-4 py-3 rounded-lg font-medium text-sm"
-                            style={{ color: "#166534", background: "#f0fdf4" }}
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            {item.label}
-                        </Link>
-                    ))}
-                    {user ? (
-                        <>
-                            <Link href="/dashboard" className="block px-4 py-3 rounded-lg text-sm font-medium" style={{ color: "#166534", background: "#dcfce7" }} onClick={() => setMenuOpen(false)}>
-                                💰 {profile?.agriCredits.toLocaleString()} AgriCredits
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                        {NAV_LINKS.map((l) => (
+                            <Link
+                                key={l.href}
+                                href={l.href}
+                                onClick={() => setMenuOpen(false)}
+                                style={{
+                                    padding: "11px 16px", borderRadius: 10,
+                                    fontSize: 15, fontWeight: 500, color: "var(--text-secondary)",
+                                    background: "var(--bg-muted)", display: "block",
+                                }}
+                            >
+                                {l.label}
                             </Link>
-                            <button onClick={() => { logout(); setMenuOpen(false); }} className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium" style={{ color: "#dc2626", background: "#fef2f2" }}>
-                                🚪 Logout
-                            </button>
-                        </>
-                    ) : (
-                        <div className="flex gap-2 pt-2">
-                            <Link href="/login" className="btn-secondary flex-1 text-center py-3 text-sm" onClick={() => setMenuOpen(false)}>Login</Link>
-                            <Link href="/register" className="btn-primary flex-1 text-center py-3 text-sm" onClick={() => setMenuOpen(false)}>Register</Link>
-                        </div>
-                    )}
+                        ))}
+                        <div style={{ height: 1, background: "var(--border)", margin: "8px 0" }} />
+                        {user ? (
+                            <>
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", background: "var(--bg-muted)", borderRadius: 10 }}>
+                                    <span style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>
+                                        {profile?.name || "Farmer"}
+                                    </span>
+                                    <div className="ac-pill" style={{ fontSize: 12 }}>
+                                        <Coins size={12} />
+                                        {profile?.agriCredits?.toLocaleString()} AC
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => { logout(); setMenuOpen(false); }}
+                                    style={{
+                                        padding: "11px 16px", borderRadius: 10, width: "100%", textAlign: "left",
+                                        fontSize: 14, fontWeight: 500, color: "#ef4444",
+                                        background: "#fff1f1", border: "none", cursor: "pointer",
+                                        display: "flex", alignItems: "center", gap: 8,
+                                    }}
+                                >
+                                    <LogOut size={15} /> Sign out
+                                </button>
+                            </>
+                        ) : (
+                            <div style={{ display: "flex", gap: 10 }}>
+                                <Link href="/login" onClick={() => setMenuOpen(false)} className="btn btn-outline" style={{ flex: 1, justifyContent: "center" }}>Sign in</Link>
+                                <Link href="/register" onClick={() => setMenuOpen(false)} className="btn btn-primary" style={{ flex: 1, justifyContent: "center" }}>Register</Link>
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
-        </nav>
+        </header>
     );
 }

@@ -1,11 +1,11 @@
-# eNAM AgriMarket — Next.js 15 + Firebase + TailwindCSS
+# AgriTrade — Next.js 15 + Firebase + TailwindCSS
 
-A production-ready digital agricultural marketplace inspired by the Government of India's eNAM portal.
+A production-ready digital agricultural marketplace inspired by the Government of India's eNAM portal (rebranded as **AgriTrade**)
 
-## 🚀 Quick Start
+## 🚀 Quick START
 
 ```bash
-cd enam-app
+cd agritrade-app
 npm install
 npm run dev        # Development server at localhost:3000
 npm run build      # Production build
@@ -90,10 +90,5 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
 | `/prices`      | Live MSP + AgriCredit conversions        |
 | `/about`       | Full AgriCredit system documentation     |
 
-## 🚀 Deploy to Vercel
-
-```bash
-vercel --prod
-```
 
 Set environment variables in Vercel dashboard matching `.env.local`.

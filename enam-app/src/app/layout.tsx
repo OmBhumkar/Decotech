@@ -1,5 +1,4 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ChatProvider } from "@/context/ChatContext";
@@ -7,27 +6,30 @@ import { Toaster } from "react-hot-toast";
 import Chatbot from "@/components/Chatbot";
 import Navbar from "@/components/Navbar";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-
 export const metadata: Metadata = {
-  title: "eNAM AgriMarket — National Agriculture Market | AgriCredit Exchange",
+  title: "AgriTrade — National Agriculture Market | AgriCredit Exchange",
   description:
-    "India's premier digital agricultural marketplace. Trade crops, earn AgriCredits pegged to MSP, and access fair pricing powered by eNAM. Supporting 1522+ mandis across 23 states.",
-  keywords: "eNAM, agriculture market, AgriCredit, MSP, farmer, crop trading, India, mandi",
+    "India's premier digital agricultural marketplace. Trade crops, earn AgriCredits pegged to MSP, and access fair pricing powered by AgriTrade. Supporting 1522+ mandis across 23 states.",
+  keywords: "AgriTrade, agriculture market, AgriCredit, MSP, farmer, crop trading, India, mandi",
   authors: [{ name: "Small Farmers Agribusiness Consortium" }],
   openGraph: {
-    title: "eNAM AgriMarket — Digital Agriculture Exchange",
+    title: "AgriTrade — Digital Agriculture Exchange",
     description: "Trade agricultural produce, earn AgriCredits pegged to MSP, connect with farmers across India.",
     type: "website",
     locale: "en_IN",
   },
   robots: "index, follow",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=5",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en">
       <body>
         <AuthProvider>
           <ChatProvider>
@@ -38,14 +40,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               position="top-right"
               toastOptions={{
                 style: {
-                  background: "#f0fdf4",
-                  color: "#14532d",
-                  border: "1px solid #bbf7d0",
+                  background: "#ffffff",
+                  color: "#0f2d1a",
+                  border: "1px solid #d1e8d5",
                   fontFamily: "Inter, sans-serif",
-                  fontSize: "0.9rem",
+                  fontSize: "14px",
+                  borderRadius: "12px",
+                  boxShadow: "0 8px 30px rgba(15,45,26,0.10)",
                 },
                 success: { iconTheme: { primary: "#16a34a", secondary: "white" } },
-                error: { iconTheme: { primary: "#dc2626", secondary: "white" } },
+                error: { iconTheme: { primary: "#ef4444", secondary: "white" } },
               }}
             />
           </ChatProvider>

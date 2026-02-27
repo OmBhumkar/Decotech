@@ -83,12 +83,12 @@ export default function RegisterPage() {
                 className="hidden lg:flex flex-col justify-center px-12 py-16 w-1/2"
                 style={{ background: "linear-gradient(135deg, #14532d, #059669)" }}
             >
-                <Image src="/logo.png" alt="eNAM" width={64} height={64} className="rounded-xl mb-6" />
+                <Image src="/logo.png" alt="AgriTrade" width={64} height={64} className="rounded-xl mb-6" />
                 <h2 className="text-4xl font-bold text-white mb-4" style={{ fontFamily: "Poppins, sans-serif" }}>
                     Join India&apos;s Largest Agri Exchange
                 </h2>
                 <p className="text-green-200 text-lg mb-8">
-                    1.8 crore farmers already trading on eNAM. Your turn to earn more.
+                    1.8 crore farmers already trading on AgriTrade. Your turn to earn more.
                 </p>
                 <div className="space-y-3">
                     {benefits.map((b) => (
@@ -112,8 +112,8 @@ export default function RegisterPage() {
             <div className="flex-1 flex items-center justify-center px-4 py-12">
                 <div className="w-full max-w-md">
                     <div className="lg:hidden text-center mb-8">
-                        <Image src="/logo.png" alt="eNAM" width={56} height={56} className="mx-auto rounded-xl mb-3" />
-                        <h1 className="text-2xl font-bold" style={{ color: "#14532d" }}>Register on eNAM</h1>
+                        <Image src="/logo.png" alt="AgriTrade" width={56} height={56} className="mx-auto rounded-xl mb-3" />
+                        <h1 className="text-2xl font-bold" style={{ color: "#14532d" }}>Register on AgriTrade</h1>
                     </div>
 
                     <div
