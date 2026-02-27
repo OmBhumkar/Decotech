@@ -2,7 +2,7 @@
 
 A production-ready digital agricultural marketplace inspired by the Government of India's eNAM portal (rebranded as **AgriTrade**)
 
-## 🚀 Quick Start
+## 🚀 Quick START
 
 ```bash
 cd agritrade-app
